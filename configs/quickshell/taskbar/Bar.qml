@@ -122,6 +122,10 @@ Scope {
                     popupWidth: 500
                     screenHeight: modelData.height
                 }
+                Popups.WallpaperMenu {
+                    id: wallpaperMenu
+                    menuWidth: workspaces.width + startmenuButton.width + themeMenuButton.width + wallpaperMenuButton.width
+                }
                 function closeAllPopups() {
                     switch (root.currentPopup) {
                     case Config.SystemPopup.Startmenu:
@@ -132,6 +136,9 @@ Scope {
                         break;
                     case Config.SystemPopup.AppLauncher:
                         appLauncher.closeAppLauncher();
+                        break;
+                    case Config.SystemPopup.WallpaperPicker:
+                        wallpaperMenu.closeWallpaperMenu();
                         break;
                     }
                     root.currentPopup = Config.SystemPopup.None;
@@ -179,6 +186,24 @@ Scope {
                         if (root.currentPopup == Config.SystemPopup.None) {
                             appLauncher.openAppLauncher();
                             root.currentPopup = Config.SystemPopup.AppLauncher;
+                        } else {
+                            taskbar.closeAllPopups();
+                            root.currentPopup = Config.SystemPopup.None;
+                        }
+                    }
+                }
+                TaskbarButton {
+                    id: wallpaperMenuButton
+                    isToggled: root.currentPopup == Config.SystemPopup.WallpaperPicker
+                    iconFontValue: "image"
+                    anchors.left: themeMenuButton.right
+                    anchors.leftMargin: 6
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    onClicked: {
+                        if (root.currentPopup == Config.SystemPopup.None) {
+                            wallpaperMenu.openWallpaperMenu();
+                            root.currentPopup = Config.SystemPopup.WallpaperPicker;
                         } else {
                             taskbar.closeAllPopups();
                             root.currentPopup = Config.SystemPopup.None;
