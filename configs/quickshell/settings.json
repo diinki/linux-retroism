@@ -6,6 +6,9 @@
       "trayIconSize": 16
     },
     "currentTheme": "default",
+    "currentWallpaper": "",
+    "wallpaperScriptPath": "",
+    "wallpaperDir": "/home/username/Pictures",
     "execCommands": {
       "files": "nemo",
       "terminal": "kitty"
