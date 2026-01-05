@@ -79,6 +79,7 @@ PopupWindow {
 
                                         onReleased: () => {
                                             Config.settings.currentTheme = modelData;
+                                            Quickshell.execDetached(["kitty", "+kitten", "themes", "--reload-in", "all", modelData+"theme"]);
                                         }
 
                                         background: Rectangle {
