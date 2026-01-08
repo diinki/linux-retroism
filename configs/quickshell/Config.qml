@@ -73,6 +73,7 @@ Singleton {
         Startmenu,
         ThemePicker,
         AppLauncher,
+        WallpaperPicker,
         None
     }
 
@@ -96,6 +97,7 @@ Singleton {
         JsonAdapter {
             id: settingsJsonAdapter
             property JsonObject settings: JsonObject {
+
                 property string version: "0.1"
                 property bool militaryTimeClockFormat: true
                 property string systemProfileImageSource: "/home/username/Pictures/system_profile_picture.png"
@@ -117,6 +119,10 @@ Singleton {
                     property int trayIconSize: 16
                     property bool monochromeTrayIcons: true
                 }
+                property string wallpaperDir: ""
+                property string currentWallpaper: ""
+                // optional user hook, if set it gets called with one arg: the file path
+                property string wallpaperScriptPath: ""
 
                 onCurrentThemeChanged: {
                     console.info("Updated theme to: " + currentTheme);
@@ -125,3 +131,4 @@ Singleton {
         }
     }
 }
+
