@@ -2,5 +2,5 @@ module Taskbar
 Bar 1.0 Bar.qml
 TaskbarButton 1.0 TaskbarButton.qml
 Workspaces 1.0 Workspaces.qml
-ClockWidget 1.0 ClockWidget.qml
+StatusWidget 1.0 StatusWidget.qml
 SysTray 1.0 SysTray.qml
