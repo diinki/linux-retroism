@@ -46,7 +46,7 @@ In general, you must install these or else things may break & not work.
 <div style="border-left: 4px solid #c8bfa1ff; padding: 12px 100px 1px 12px; background-color: #0000003e; margin-bottom: 8px">
 <strong>Window Manager:</strong><br>
 
-`Hyprland` or `SwayFX` or `SwayFX` | `hyprpaper` or `swaybg`
+`Hyprland` or `SwayFX` | `hyprpaper` or `swaybg`
 
 </div>
 
