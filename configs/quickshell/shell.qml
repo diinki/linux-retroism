@@ -364,25 +364,30 @@ Scope {
 
                                     Component.onCompleted: refreshNetworks()
 
+                                    property string wifiOutput: ""
+                                    property string wifiStatusOutput: ""
+
                                     Process {
                                         id: wifiListProc
                                         command: ["bash", "-c", "nmcli -t -f SSID,SIGNAL,SECURITY,IN-USE device wifi list 2>/dev/null"]
                                         stdout: SplitParser {
-                                            onRead: data => {
-                                                var lines = data.trim().split('\n');
-                                                var networks = [];
-                                                networkTab.currentWifi = "";
-                                                for (var i = 0; i < lines.length; i++) {
-                                                    var parts = lines[i].split(':');
-                                                    if (parts[0] && parts[0].trim() !== "") {
-                                                        var net = { ssid: parts[0], signal: parseInt(parts[1]) || 0, security: parts[2] || "", active: parts[3] === "*" };
-                                                        networks.push(net);
-                                                        if (net.active) networkTab.currentWifi = net.ssid;
-                                                    }
+                                            onRead: data => { networkTab.wifiOutput += data + "\n"; }
+                                        }
+                                        onExited: {
+                                            var lines = networkTab.wifiOutput.trim().split('\n');
+                                            var networks = [];
+                                            networkTab.currentWifi = "";
+                                            for (var i = 0; i < lines.length; i++) {
+                                                var parts = lines[i].split(':');
+                                                if (parts[0] && parts[0].trim() !== "") {
+                                                    var net = { ssid: parts[0], signal: parseInt(parts[1]) || 0, security: parts[2] || "", active: parts[3] === "*" };
+                                                    networks.push(net);
+                                                    if (net.active) networkTab.currentWifi = net.ssid;
                                                 }
-                                                networkTab.wifiList = networks;
-                                                networkTab.scanning = false;
                                             }
+                                            networkTab.wifiList = networks;
+                                            networkTab.scanning = false;
+                                            networkTab.wifiOutput = "";
                                         }
                                     }
 
@@ -390,7 +395,10 @@ Scope {
                                         id: wifiStatusProc
                                         command: ["nmcli", "radio", "wifi"]
                                         stdout: SplitParser {
-                                            onRead: data => { networkTab.wifiEnabled = data.trim() === "enabled"; }
+                                            onRead: data => { networkTab.wifiStatusOutput = data.trim(); }
+                                        }
+                                        onExited: {
+                                            networkTab.wifiEnabled = networkTab.wifiStatusOutput === "enabled";
                                         }
                                     }
 
@@ -508,11 +516,17 @@ Scope {
 
                                     Component.onCompleted: refreshDevices()
 
+                                    property string btStatusOutput: ""
+                                    property string btDevicesOutput: ""
+
                                     Process {
                                         id: btStatusProc
                                         command: ["bash", "-c", "bluetoothctl show 2>/dev/null | grep 'Powered:' | awk '{print $2}'"]
                                         stdout: SplitParser {
-                                            onRead: data => { bluetoothTab.btEnabled = data.trim() === "yes"; }
+                                            onRead: data => { bluetoothTab.btStatusOutput = data.trim(); }
+                                        }
+                                        onExited: {
+                                            bluetoothTab.btEnabled = bluetoothTab.btStatusOutput === "yes";
                                         }
                                     }
 
@@ -520,18 +534,20 @@ Scope {
                                         id: btDevicesProc
                                         command: ["bluetoothctl", "devices"]
                                         stdout: SplitParser {
-                                            onRead: data => {
-                                                var lines = data.trim().split('\n');
-                                                var devices = [];
-                                                for (var i = 0; i < lines.length; i++) {
-                                                    var match = lines[i].match(/Device ([A-Fa-f0-9:]+) (.+)/);
-                                                    if (match) {
-                                                        devices.push({ mac: match[1], name: match[2], connected: false });
-                                                    }
+                                            onRead: data => { bluetoothTab.btDevicesOutput += data + "\n"; }
+                                        }
+                                        onExited: {
+                                            var lines = bluetoothTab.btDevicesOutput.trim().split('\n');
+                                            var devices = [];
+                                            for (var i = 0; i < lines.length; i++) {
+                                                var match = lines[i].match(/Device ([A-Fa-f0-9:]+) (.+)/);
+                                                if (match) {
+                                                    devices.push({ mac: match[1], name: match[2], connected: false });
                                                 }
-                                                bluetoothTab.deviceList = devices;
-                                                bluetoothTab.scanning = false;
                                             }
+                                            bluetoothTab.deviceList = devices;
+                                            bluetoothTab.scanning = false;
+                                            bluetoothTab.btDevicesOutput = "";
                                         }
                                     }
 

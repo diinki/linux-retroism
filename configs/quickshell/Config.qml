@@ -12,15 +12,19 @@ Singleton {
     property string hyprlandConfigPath: "/home/ozhan/.config/hypr/hyprland.conf"
 
     // Read hyprland.conf on startup
+    property string terminalOutput: ""
+    property string fileManagerOutput: ""
+
     Process {
         id: readTerminal
         command: ["grep", "^\\$terminal", hyprlandConfigPath]
         running: true
         stdout: SplitParser {
-            onRead: data => {
-                var match = data.match(/\$terminal\s*=\s*(.+)/);
-                if (match) hyprlandTerminal = match[1].trim();
-            }
+            onRead: data => { root.terminalOutput = data; }
+        }
+        onExited: {
+            var match = root.terminalOutput.match(/\$terminal\s*=\s*(.+)/);
+            if (match) hyprlandTerminal = match[1].trim();
         }
     }
 
@@ -29,10 +33,11 @@ Singleton {
         command: ["grep", "^\\$fileManager", hyprlandConfigPath]
         running: true
         stdout: SplitParser {
-            onRead: data => {
-                var match = data.match(/\$fileManager\s*=\s*(.+)/);
-                if (match) hyprlandFileManager = match[1].trim();
-            }
+            onRead: data => { root.fileManagerOutput = data; }
+        }
+        onExited: {
+            var match = root.fileManagerOutput.match(/\$fileManager\s*=\s*(.+)/);
+            if (match) hyprlandFileManager = match[1].trim();
         }
     }
 
