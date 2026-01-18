@@ -54,8 +54,8 @@ Scope {
             property int currentTab: 0
 
             Rectangle {
-                width: 480
-                height: 420
+                width: 700
+                height: 560
                 x: (settingsWindow.width - width) / 2
                 y: (settingsWindow.height - height) / 2
                 color: Config.colors.base
@@ -65,14 +65,14 @@ Scope {
                     anchors.fill: parent
                     windowTitle: "Settings"
                     windowTitleIcon: "\ue8b8"
-                    windowTitleDecorationWidth: 100
+                    windowTitleDecorationWidth: 120
                     showCloseButton: true
                     onCloseClicked: Config.openSettingsWindow = false
 
                     Item {
                         anchors.fill: parent
-                        anchors.margins: 12
-                        anchors.topMargin: 32
+                        anchors.margins: 16
+                        anchors.topMargin: 40
                         clip: true
 
                         // Tab Bar
@@ -81,21 +81,21 @@ Scope {
                             anchors.top: parent.top
                             anchors.left: parent.left
                             anchors.right: parent.right
-                            spacing: 2
+                            spacing: 3
 
                             Repeater {
                                 model: ["Appearance", "System", "Network", "Bluetooth", "About"]
                                 Rectangle {
-                                    width: (parent.width - 8) / 5
-                                    height: 28
+                                    width: (parent.width - 12) / 5
+                                    height: 36
                                     color: settingsWindow.currentTab === index ? Config.colors.highlight : Config.colors.shadow
-                                    border.width: 1
+                                    border.width: 2
                                     border.color: Config.colors.outline
 
                                     Rectangle {
                                         anchors.fill: parent
-                                        anchors.margins: 1
-                                        anchors.bottomMargin: settingsWindow.currentTab === index ? 0 : 1
+                                        anchors.margins: 2
+                                        anchors.bottomMargin: settingsWindow.currentTab === index ? 0 : 2
                                         color: "transparent"
                                         border.width: 1
                                         border.color: settingsWindow.currentTab === index ? Config.colors.highlight : Config.colors.base
@@ -105,7 +105,7 @@ Scope {
                                         anchors.centerIn: parent
                                         text: modelData
                                         font.family: fontCharcoal.name
-                                        font.pixelSize: 11
+                                        font.pixelSize: 14
                                         color: Config.colors.text
                                     }
 
@@ -131,35 +131,35 @@ Scope {
 
                             Rectangle {
                                 anchors.fill: parent
-                                anchors.margins: 8
+                                anchors.margins: 12
                                 color: Config.colors.base
-                                border.width: 1
+                                border.width: 2
                                 border.color: Config.colors.shadow
 
                                 // === APPEARANCE TAB ===
                                 Item {
                                     anchors.fill: parent
-                                    anchors.margins: 12
+                                    anchors.margins: 20
                                     visible: settingsWindow.currentTab === 0
 
                                     Column {
                                         anchors.fill: parent
-                                        spacing: 14
+                                        spacing: 20
 
                                         // Font Size
                                         Column {
                                             width: parent.width
-                                            spacing: 4
-                                            Text { text: "Font Size"; font.family: fontCharcoal.name; font.pixelSize: 11; color: Config.colors.text }
+                                            spacing: 8
+                                            Text { text: "Font Size"; font.family: fontCharcoal.name; font.pixelSize: 15; color: Config.colors.text }
                                             Row {
-                                                spacing: 10
+                                                spacing: 16
                                                 Rectangle {
-                                                    width: 180; height: 20
+                                                    width: 280; height: 28
                                                     color: Config.colors.shadow
-                                                    border.width: 1; border.color: Config.colors.outline
+                                                    border.width: 2; border.color: Config.colors.outline
                                                     Rectangle {
-                                                        anchors.left: parent.left; anchors.top: parent.top; anchors.bottom: parent.bottom; anchors.margins: 2
-                                                        width: (Config.settings.bar.fontSize - 8) / 12 * (parent.width - 4)
+                                                        anchors.left: parent.left; anchors.top: parent.top; anchors.bottom: parent.bottom; anchors.margins: 3
+                                                        width: (Config.settings.bar.fontSize - 8) / 12 * (parent.width - 6)
                                                         color: Config.colors.accent
                                                     }
                                                     MouseArea {
@@ -169,24 +169,24 @@ Scope {
                                                         }
                                                     }
                                                 }
-                                                Text { text: Config.settings.bar.fontSize + "px"; font.family: fontMonaco.name; font.pixelSize: 11; color: Config.colors.text; anchors.verticalCenter: parent.verticalCenter }
+                                                Text { text: Config.settings.bar.fontSize + "px"; font.family: fontMonaco.name; font.pixelSize: 14; color: Config.colors.text; anchors.verticalCenter: parent.verticalCenter }
                                             }
                                         }
 
                                         // Tray Icon Size
                                         Column {
                                             width: parent.width
-                                            spacing: 4
-                                            Text { text: "Tray Icon Size"; font.family: fontCharcoal.name; font.pixelSize: 11; color: Config.colors.text }
+                                            spacing: 8
+                                            Text { text: "Tray Icon Size"; font.family: fontCharcoal.name; font.pixelSize: 15; color: Config.colors.text }
                                             Row {
-                                                spacing: 10
+                                                spacing: 16
                                                 Rectangle {
-                                                    width: 180; height: 20
+                                                    width: 280; height: 28
                                                     color: Config.colors.shadow
-                                                    border.width: 1; border.color: Config.colors.outline
+                                                    border.width: 2; border.color: Config.colors.outline
                                                     Rectangle {
-                                                        anchors.left: parent.left; anchors.top: parent.top; anchors.bottom: parent.bottom; anchors.margins: 2
-                                                        width: (Config.settings.bar.trayIconSize - 12) / 12 * (parent.width - 4)
+                                                        anchors.left: parent.left; anchors.top: parent.top; anchors.bottom: parent.bottom; anchors.margins: 3
+                                                        width: (Config.settings.bar.trayIconSize - 12) / 12 * (parent.width - 6)
                                                         color: Config.colors.accent
                                                     }
                                                     MouseArea {
@@ -196,60 +196,60 @@ Scope {
                                                         }
                                                     }
                                                 }
-                                                Text { text: Config.settings.bar.trayIconSize + "px"; font.family: fontMonaco.name; font.pixelSize: 11; color: Config.colors.text; anchors.verticalCenter: parent.verticalCenter }
+                                                Text { text: Config.settings.bar.trayIconSize + "px"; font.family: fontMonaco.name; font.pixelSize: 14; color: Config.colors.text; anchors.verticalCenter: parent.verticalCenter }
                                             }
                                         }
 
                                         // Checkboxes
                                         Row {
-                                            spacing: 8
+                                            spacing: 12
                                             Rectangle {
-                                                width: 16; height: 16
-                                                color: Config.colors.shadow; border.width: 1; border.color: Config.colors.outline
-                                                Text { anchors.centerIn: parent; text: Config.settings.bar.monochromeTrayIcons ? "✓" : ""; font.pixelSize: 12; font.bold: true; color: Config.colors.text }
+                                                width: 24; height: 24
+                                                color: Config.colors.shadow; border.width: 2; border.color: Config.colors.outline
+                                                Text { anchors.centerIn: parent; text: Config.settings.bar.monochromeTrayIcons ? "✓" : ""; font.pixelSize: 18; font.bold: true; color: Config.colors.text }
                                                 MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: Config.settings.bar.monochromeTrayIcons = !Config.settings.bar.monochromeTrayIcons }
                                             }
-                                            Text { text: "Monochrome Tray Icons"; font.family: fontCharcoal.name; font.pixelSize: 11; color: Config.colors.text; anchors.verticalCenter: parent.verticalCenter }
+                                            Text { text: "Monochrome Tray Icons"; font.family: fontCharcoal.name; font.pixelSize: 14; color: Config.colors.text; anchors.verticalCenter: parent.verticalCenter }
                                         }
 
                                         Row {
-                                            spacing: 8
+                                            spacing: 12
                                             Rectangle {
-                                                width: 16; height: 16
-                                                color: Config.colors.shadow; border.width: 1; border.color: Config.colors.outline
-                                                Text { anchors.centerIn: parent; text: Config.settings.militaryTimeClockFormat ? "✓" : ""; font.pixelSize: 12; font.bold: true; color: Config.colors.text }
+                                                width: 24; height: 24
+                                                color: Config.colors.shadow; border.width: 2; border.color: Config.colors.outline
+                                                Text { anchors.centerIn: parent; text: Config.settings.militaryTimeClockFormat ? "✓" : ""; font.pixelSize: 18; font.bold: true; color: Config.colors.text }
                                                 MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: Config.settings.militaryTimeClockFormat = !Config.settings.militaryTimeClockFormat }
                                             }
-                                            Text { text: "24-Hour Clock Format"; font.family: fontCharcoal.name; font.pixelSize: 11; color: Config.colors.text; anchors.verticalCenter: parent.verticalCenter }
+                                            Text { text: "24-Hour Clock Format"; font.family: fontCharcoal.name; font.pixelSize: 14; color: Config.colors.text; anchors.verticalCenter: parent.verticalCenter }
                                         }
 
                                         // Theme Selector
                                         Column {
                                             width: parent.width
-                                            spacing: 6
-                                            Text { text: "Theme"; font.family: fontCharcoal.name; font.pixelSize: 11; color: Config.colors.text }
+                                            spacing: 10
+                                            Text { text: "Theme"; font.family: fontCharcoal.name; font.pixelSize: 15; color: Config.colors.text }
                                             Flow {
                                                 width: parent.width
-                                                spacing: 6
+                                                spacing: 10
                                                 Repeater {
                                                     model: Object.keys(Config.themes)
                                                     Rectangle {
                                                         property string themeName: modelData
-                                                        width: 70; height: 50
+                                                        width: 100; height: 70
                                                         color: Config.settings.currentTheme === themeName ? Config.colors.highlight : Config.colors.shadow
-                                                        border.width: Config.settings.currentTheme === themeName ? 2 : 1
+                                                        border.width: Config.settings.currentTheme === themeName ? 3 : 2
                                                         border.color: Config.settings.currentTheme === themeName ? Config.themes[themeName].accent : Config.colors.outline
                                                         Column {
                                                             anchors.centerIn: parent
-                                                            spacing: 3
+                                                            spacing: 6
                                                             Row {
                                                                 anchors.horizontalCenter: parent.horizontalCenter
-                                                                spacing: 2
-                                                                Rectangle { width: 10; height: 10; color: Config.themes[themeName].base; border.width: 1; border.color: Config.themes[themeName].outline }
-                                                                Rectangle { width: 10; height: 10; color: Config.themes[themeName].accent; border.width: 1; border.color: Config.themes[themeName].outline }
-                                                                Rectangle { width: 10; height: 10; color: Config.themes[themeName].shadow; border.width: 1; border.color: Config.themes[themeName].outline }
+                                                                spacing: 4
+                                                                Rectangle { width: 16; height: 16; color: Config.themes[themeName].base; border.width: 2; border.color: Config.themes[themeName].outline }
+                                                                Rectangle { width: 16; height: 16; color: Config.themes[themeName].accent; border.width: 2; border.color: Config.themes[themeName].outline }
+                                                                Rectangle { width: 16; height: 16; color: Config.themes[themeName].shadow; border.width: 2; border.color: Config.themes[themeName].outline }
                                                             }
-                                                            Text { anchors.horizontalCenter: parent.horizontalCenter; text: themeName; font.family: fontMonaco.name; font.pixelSize: 8; color: Config.colors.text }
+                                                            Text { anchors.horizontalCenter: parent.horizontalCenter; text: themeName; font.family: fontMonaco.name; font.pixelSize: 11; color: Config.colors.text }
                                                         }
                                                         MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: Config.settings.currentTheme = themeName }
                                                     }
@@ -262,87 +262,89 @@ Scope {
                                 // === SYSTEM TAB ===
                                 Item {
                                     anchors.fill: parent
-                                    anchors.margins: 12
+                                    anchors.margins: 20
                                     visible: settingsWindow.currentTab === 1
 
                                     Column {
                                         anchors.fill: parent
-                                        spacing: 14
+                                        spacing: 20
 
                                         // Terminal
                                         Column {
                                             width: parent.width
-                                            spacing: 4
-                                            Text { text: "Terminal Application"; font.family: fontCharcoal.name; font.pixelSize: 11; color: Config.colors.text }
+                                            spacing: 8
+                                            Text { text: "Terminal Application"; font.family: fontCharcoal.name; font.pixelSize: 15; color: Config.colors.text }
                                             Row {
-                                                spacing: 6
+                                                spacing: 12
                                                 Rectangle {
-                                                    width: 180; height: 24
-                                                    color: Config.colors.shadow; border.width: 1; border.color: Config.colors.outline
+                                                    width: 280; height: 32
+                                                    color: Config.colors.shadow; border.width: 2; border.color: Config.colors.outline
                                                     TextInput {
                                                         id: terminalInput
-                                                        anchors.fill: parent; anchors.margins: 4
+                                                        anchors.fill: parent; anchors.margins: 6
                                                         text: Config.hyprlandTerminal
-                                                        font.family: fontMonaco.name; font.pixelSize: 11; color: Config.colors.text
+                                                        font.family: fontMonaco.name; font.pixelSize: 14; color: Config.colors.text
                                                         clip: true; selectByMouse: true; activeFocusOnPress: true
+                                                        verticalAlignment: TextInput.AlignVCenter
                                                     }
                                                 }
                                                 Rectangle {
-                                                    width: 45; height: 24
+                                                    width: 70; height: 32
                                                     color: termSaveArea.pressed ? Config.colors.shadow : Config.colors.highlight
-                                                    border.width: 1; border.color: Config.colors.outline
-                                                    Text { anchors.centerIn: parent; text: "Save"; font.family: fontCharcoal.name; font.pixelSize: 10; color: Config.colors.text }
+                                                    border.width: 2; border.color: Config.colors.outline
+                                                    Text { anchors.centerIn: parent; text: "Save"; font.family: fontCharcoal.name; font.pixelSize: 13; color: Config.colors.text }
                                                     MouseArea { id: termSaveArea; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: Config.setHyprlandTerminal(terminalInput.text) }
                                                 }
                                             }
-                                            Text { text: "→ hyprland.conf: $terminal"; font.family: fontMonaco.name; font.pixelSize: 8; color: Config.colors.text; opacity: 0.5 }
+                                            Text { text: "→ hyprland.conf: $terminal"; font.family: fontMonaco.name; font.pixelSize: 11; color: Config.colors.text; opacity: 0.5 }
                                         }
 
                                         // File Manager
                                         Column {
                                             width: parent.width
-                                            spacing: 4
-                                            Text { text: "File Manager Application"; font.family: fontCharcoal.name; font.pixelSize: 11; color: Config.colors.text }
+                                            spacing: 8
+                                            Text { text: "File Manager Application"; font.family: fontCharcoal.name; font.pixelSize: 15; color: Config.colors.text }
                                             Row {
-                                                spacing: 6
+                                                spacing: 12
                                                 Rectangle {
-                                                    width: 180; height: 24
-                                                    color: Config.colors.shadow; border.width: 1; border.color: Config.colors.outline
+                                                    width: 280; height: 32
+                                                    color: Config.colors.shadow; border.width: 2; border.color: Config.colors.outline
                                                     TextInput {
                                                         id: filesInput
-                                                        anchors.fill: parent; anchors.margins: 4
+                                                        anchors.fill: parent; anchors.margins: 6
                                                         text: Config.hyprlandFileManager
-                                                        font.family: fontMonaco.name; font.pixelSize: 11; color: Config.colors.text
+                                                        font.family: fontMonaco.name; font.pixelSize: 14; color: Config.colors.text
                                                         clip: true; selectByMouse: true; activeFocusOnPress: true
+                                                        verticalAlignment: TextInput.AlignVCenter
                                                     }
                                                 }
                                                 Rectangle {
-                                                    width: 45; height: 24
+                                                    width: 70; height: 32
                                                     color: filesSaveArea.pressed ? Config.colors.shadow : Config.colors.highlight
-                                                    border.width: 1; border.color: Config.colors.outline
-                                                    Text { anchors.centerIn: parent; text: "Save"; font.family: fontCharcoal.name; font.pixelSize: 10; color: Config.colors.text }
+                                                    border.width: 2; border.color: Config.colors.outline
+                                                    Text { anchors.centerIn: parent; text: "Save"; font.family: fontCharcoal.name; font.pixelSize: 13; color: Config.colors.text }
                                                     MouseArea { id: filesSaveArea; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: Config.setHyprlandFileManager(filesInput.text) }
                                                 }
                                             }
-                                            Text { text: "→ hyprland.conf: $fileManager"; font.family: fontMonaco.name; font.pixelSize: 8; color: Config.colors.text; opacity: 0.5 }
+                                            Text { text: "→ hyprland.conf: $fileManager"; font.family: fontMonaco.name; font.pixelSize: 11; color: Config.colors.text; opacity: 0.5 }
                                         }
 
-                                        Rectangle { width: parent.width; height: 1; color: Config.colors.outline; opacity: 0.5 }
+                                        Rectangle { width: parent.width; height: 2; color: Config.colors.outline; opacity: 0.5 }
 
-                                        Text { text: "System Information"; font.family: fontCharcoal.name; font.pixelSize: 11; font.bold: true; color: Config.colors.text }
+                                        Text { text: "System Information"; font.family: fontCharcoal.name; font.pixelSize: 16; font.bold: true; color: Config.colors.text }
 
                                         Grid {
-                                            columns: 2; columnSpacing: 10; rowSpacing: 6
-                                            Text { text: "OS:"; font.family: fontCharcoal.name; font.pixelSize: 10; color: Config.colors.text }
-                                            Text { text: Config.settings.systemDetails.osName; font.family: fontMonaco.name; font.pixelSize: 10; color: Config.colors.text }
-                                            Text { text: "Version:"; font.family: fontCharcoal.name; font.pixelSize: 10; color: Config.colors.text }
-                                            Text { text: Config.settings.systemDetails.osVersion; font.family: fontMonaco.name; font.pixelSize: 10; color: Config.colors.text }
-                                            Text { text: "CPU:"; font.family: fontCharcoal.name; font.pixelSize: 10; color: Config.colors.text }
-                                            Text { text: Config.settings.systemDetails.cpu; font.family: fontMonaco.name; font.pixelSize: 10; color: Config.colors.text }
-                                            Text { text: "GPU:"; font.family: fontCharcoal.name; font.pixelSize: 10; color: Config.colors.text }
-                                            Text { text: Config.settings.systemDetails.gpu; font.family: fontMonaco.name; font.pixelSize: 10; color: Config.colors.text }
-                                            Text { text: "RAM:"; font.family: fontCharcoal.name; font.pixelSize: 10; color: Config.colors.text }
-                                            Text { text: Config.settings.systemDetails.ram; font.family: fontMonaco.name; font.pixelSize: 10; color: Config.colors.text }
+                                            columns: 2; columnSpacing: 20; rowSpacing: 12
+                                            Text { text: "OS:"; font.family: fontCharcoal.name; font.pixelSize: 14; color: Config.colors.text }
+                                            Text { text: Config.settings.systemDetails.osName; font.family: fontMonaco.name; font.pixelSize: 14; color: Config.colors.text }
+                                            Text { text: "Version:"; font.family: fontCharcoal.name; font.pixelSize: 14; color: Config.colors.text }
+                                            Text { text: Config.settings.systemDetails.osVersion; font.family: fontMonaco.name; font.pixelSize: 14; color: Config.colors.text }
+                                            Text { text: "CPU:"; font.family: fontCharcoal.name; font.pixelSize: 14; color: Config.colors.text }
+                                            Text { text: Config.settings.systemDetails.cpu; font.family: fontMonaco.name; font.pixelSize: 14; color: Config.colors.text }
+                                            Text { text: "GPU:"; font.family: fontCharcoal.name; font.pixelSize: 14; color: Config.colors.text }
+                                            Text { text: Config.settings.systemDetails.gpu; font.family: fontMonaco.name; font.pixelSize: 14; color: Config.colors.text }
+                                            Text { text: "RAM:"; font.family: fontCharcoal.name; font.pixelSize: 14; color: Config.colors.text }
+                                            Text { text: Config.settings.systemDetails.ram; font.family: fontMonaco.name; font.pixelSize: 14; color: Config.colors.text }
                                         }
                                     }
                                 }
@@ -351,7 +353,7 @@ Scope {
                                 Item {
                                     id: networkTab
                                     anchors.fill: parent
-                                    anchors.margins: 12
+                                    anchors.margins: 20
                                     visible: settingsWindow.currentTab === 2
 
                                     property var wifiList: []
@@ -394,63 +396,63 @@ Scope {
 
                                     Column {
                                         anchors.fill: parent
-                                        spacing: 10
+                                        spacing: 16
 
                                         Row {
                                             width: parent.width
-                                            spacing: 10
-                                            Text { text: "WiFi"; font.family: fontCharcoal.name; font.pixelSize: 12; font.bold: true; color: Config.colors.text; anchors.verticalCenter: parent.verticalCenter }
-                                            Item { width: parent.width - 150; height: 1 }
+                                            spacing: 16
+                                            Text { text: "WiFi"; font.family: fontCharcoal.name; font.pixelSize: 16; font.bold: true; color: Config.colors.text; anchors.verticalCenter: parent.verticalCenter }
+                                            Item { width: parent.width - 200; height: 1 }
                                             Rectangle {
-                                                width: 40; height: 20
+                                                width: 56; height: 28
                                                 color: networkTab.wifiEnabled ? Config.colors.accent : Config.colors.shadow
-                                                border.width: 1; border.color: Config.colors.outline
+                                                border.width: 2; border.color: Config.colors.outline
                                                 Rectangle {
-                                                    width: 16; height: 16; y: 2
-                                                    x: networkTab.wifiEnabled ? 22 : 2
-                                                    color: Config.colors.highlight; border.width: 1; border.color: Config.colors.outline
+                                                    width: 22; height: 22; y: 3
+                                                    x: networkTab.wifiEnabled ? 31 : 3
+                                                    color: Config.colors.highlight; border.width: 2; border.color: Config.colors.outline
                                                     Behavior on x { NumberAnimation { duration: 150 } }
                                                 }
                                                 MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: networkTab.toggleWifi() }
                                             }
                                             Rectangle {
-                                                width: 24; height: 24
+                                                width: 36; height: 36
                                                 color: refreshArea.pressed ? Config.colors.shadow : Config.colors.highlight
-                                                border.width: 1; border.color: Config.colors.outline
-                                                Text { anchors.centerIn: parent; text: "\ue5d5"; font.family: iconFont.name; font.pixelSize: 14; color: Config.colors.text; rotation: networkTab.scanning ? 360 : 0; Behavior on rotation { RotationAnimation { duration: 500 } } }
+                                                border.width: 2; border.color: Config.colors.outline
+                                                Text { anchors.centerIn: parent; text: "\ue5d5"; font.family: iconFont.name; font.pixelSize: 20; color: Config.colors.text; rotation: networkTab.scanning ? 360 : 0; Behavior on rotation { RotationAnimation { duration: 500 } } }
                                                 MouseArea { id: refreshArea; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: networkTab.refreshNetworks() }
                                             }
                                         }
 
-                                        Rectangle { width: parent.width; height: 1; color: Config.colors.outline; opacity: 0.5 }
+                                        Rectangle { width: parent.width; height: 2; color: Config.colors.outline; opacity: 0.5 }
 
                                         Rectangle {
-                                            width: parent.width; height: parent.height - 50
-                                            color: Config.colors.shadow; border.width: 1; border.color: Config.colors.outline
+                                            width: parent.width; height: parent.height - 80
+                                            color: Config.colors.shadow; border.width: 2; border.color: Config.colors.outline
                                             clip: true
 
                                             ListView {
                                                 id: wifiListView
-                                                anchors.fill: parent; anchors.margins: 4
+                                                anchors.fill: parent; anchors.margins: 6
                                                 model: networkTab.wifiList
-                                                spacing: 2
+                                                spacing: 4
 
                                                 delegate: Rectangle {
                                                     width: wifiListView.width
-                                                    height: 28
+                                                    height: 40
                                                     color: modelData.active ? Config.colors.accent : (wifiItemArea.containsMouse ? Config.colors.highlight : "transparent")
                                                     
                                                     Row {
-                                                        anchors.fill: parent; anchors.margins: 4; spacing: 8
+                                                        anchors.fill: parent; anchors.margins: 8; spacing: 12
                                                         Text {
                                                             text: modelData.signal > 75 ? "\ue1d8" : (modelData.signal > 50 ? "\uebe4" : (modelData.signal > 25 ? "\uebe1" : "\uf065"))
-                                                            font.family: iconFont.name; font.pixelSize: 16; color: modelData.active ? Config.colors.base : Config.colors.text
+                                                            font.family: iconFont.name; font.pixelSize: 22; color: modelData.active ? Config.colors.base : Config.colors.text
                                                             anchors.verticalCenter: parent.verticalCenter
                                                         }
-                                                        Text { text: modelData.ssid; font.family: fontMonaco.name; font.pixelSize: 10; color: modelData.active ? Config.colors.base : Config.colors.text; anchors.verticalCenter: parent.verticalCenter; elide: Text.ElideRight; width: 180 }
-                                                        Text { text: modelData.security !== "" ? "\ue897" : ""; font.family: iconFont.name; font.pixelSize: 12; color: modelData.active ? Config.colors.base : Config.colors.text; anchors.verticalCenter: parent.verticalCenter; opacity: 0.6 }
+                                                        Text { text: modelData.ssid; font.family: fontMonaco.name; font.pixelSize: 14; color: modelData.active ? Config.colors.base : Config.colors.text; anchors.verticalCenter: parent.verticalCenter; elide: Text.ElideRight; width: 320 }
+                                                        Text { text: modelData.security !== "" ? "\ue897" : ""; font.family: iconFont.name; font.pixelSize: 18; color: modelData.active ? Config.colors.base : Config.colors.text; anchors.verticalCenter: parent.verticalCenter; opacity: 0.6 }
                                                         Item { width: 1; height: 1; Layout.fillWidth: true }
-                                                        Text { text: modelData.signal + "%"; font.family: fontMonaco.name; font.pixelSize: 9; color: modelData.active ? Config.colors.base : Config.colors.text; anchors.verticalCenter: parent.verticalCenter; opacity: 0.6 }
+                                                        Text { text: modelData.signal + "%"; font.family: fontMonaco.name; font.pixelSize: 13; color: modelData.active ? Config.colors.base : Config.colors.text; anchors.verticalCenter: parent.verticalCenter; opacity: 0.6 }
                                                     }
                                                     MouseArea { id: wifiItemArea; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onDoubleClicked: networkTab.connectToNetwork(modelData.ssid) }
                                                 }
@@ -460,11 +462,11 @@ Scope {
                                                 anchors.centerIn: parent
                                                 visible: networkTab.wifiList.length === 0
                                                 text: networkTab.scanning ? "Scanning..." : (networkTab.wifiEnabled ? "No networks found" : "WiFi disabled")
-                                                font.family: fontMonaco.name; font.pixelSize: 10; color: Config.colors.text; opacity: 0.5
+                                                font.family: fontMonaco.name; font.pixelSize: 14; color: Config.colors.text; opacity: 0.5
                                             }
                                         }
 
-                                        Text { text: "Double-click to connect"; font.family: fontMonaco.name; font.pixelSize: 8; color: Config.colors.text; opacity: 0.4 }
+                                        Text { text: "Double-click to connect"; font.family: fontMonaco.name; font.pixelSize: 12; color: Config.colors.text; opacity: 0.4 }
                                     }
                                 }
 
@@ -472,7 +474,7 @@ Scope {
                                 Item {
                                     id: bluetoothTab
                                     anchors.fill: parent
-                                    anchors.margins: 12
+                                    anchors.margins: 20
                                     visible: settingsWindow.currentTab === 3
 
                                     property var deviceList: []
@@ -536,73 +538,73 @@ Scope {
 
                                     Column {
                                         anchors.fill: parent
-                                        spacing: 10
+                                        spacing: 16
 
                                         Row {
                                             width: parent.width
-                                            spacing: 10
-                                            Text { text: "Bluetooth"; font.family: fontCharcoal.name; font.pixelSize: 12; font.bold: true; color: Config.colors.text; anchors.verticalCenter: parent.verticalCenter }
-                                            Item { width: parent.width - 180; height: 1 }
+                                            spacing: 16
+                                            Text { text: "Bluetooth"; font.family: fontCharcoal.name; font.pixelSize: 16; font.bold: true; color: Config.colors.text; anchors.verticalCenter: parent.verticalCenter }
+                                            Item { width: parent.width - 240; height: 1 }
                                             Rectangle {
-                                                width: 40; height: 20
+                                                width: 56; height: 28
                                                 color: bluetoothTab.btEnabled ? Config.colors.accent : Config.colors.shadow
-                                                border.width: 1; border.color: Config.colors.outline
+                                                border.width: 2; border.color: Config.colors.outline
                                                 Rectangle {
-                                                    width: 16; height: 16; y: 2
-                                                    x: bluetoothTab.btEnabled ? 22 : 2
-                                                    color: Config.colors.highlight; border.width: 1; border.color: Config.colors.outline
+                                                    width: 22; height: 22; y: 3
+                                                    x: bluetoothTab.btEnabled ? 31 : 3
+                                                    color: Config.colors.highlight; border.width: 2; border.color: Config.colors.outline
                                                     Behavior on x { NumberAnimation { duration: 150 } }
                                                 }
                                                 MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: bluetoothTab.toggleBluetooth() }
                                             }
                                             Rectangle {
-                                                width: 24; height: 24
+                                                width: 36; height: 36
                                                 color: btScanArea.pressed ? Config.colors.shadow : Config.colors.highlight
-                                                border.width: 1; border.color: Config.colors.outline
-                                                Text { anchors.centerIn: parent; text: "\ue1a7"; font.family: iconFont.name; font.pixelSize: 14; color: Config.colors.text }
+                                                border.width: 2; border.color: Config.colors.outline
+                                                Text { anchors.centerIn: parent; text: "\ue1a7"; font.family: iconFont.name; font.pixelSize: 20; color: Config.colors.text }
                                                 MouseArea { id: btScanArea; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: bluetoothTab.startScan() }
                                             }
                                             Rectangle {
-                                                width: 24; height: 24
+                                                width: 36; height: 36
                                                 color: btRefreshArea.pressed ? Config.colors.shadow : Config.colors.highlight
-                                                border.width: 1; border.color: Config.colors.outline
-                                                Text { anchors.centerIn: parent; text: "\ue5d5"; font.family: iconFont.name; font.pixelSize: 14; color: Config.colors.text }
+                                                border.width: 2; border.color: Config.colors.outline
+                                                Text { anchors.centerIn: parent; text: "\ue5d5"; font.family: iconFont.name; font.pixelSize: 20; color: Config.colors.text }
                                                 MouseArea { id: btRefreshArea; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: bluetoothTab.refreshDevices() }
                                             }
                                         }
 
-                                        Rectangle { width: parent.width; height: 1; color: Config.colors.outline; opacity: 0.5 }
+                                        Rectangle { width: parent.width; height: 2; color: Config.colors.outline; opacity: 0.5 }
 
                                         Rectangle {
-                                            width: parent.width; height: parent.height - 50
-                                            color: Config.colors.shadow; border.width: 1; border.color: Config.colors.outline
+                                            width: parent.width; height: parent.height - 80
+                                            color: Config.colors.shadow; border.width: 2; border.color: Config.colors.outline
                                             clip: true
 
                                             ListView {
                                                 id: btListView
-                                                anchors.fill: parent; anchors.margins: 4
+                                                anchors.fill: parent; anchors.margins: 6
                                                 model: bluetoothTab.deviceList
-                                                spacing: 2
+                                                spacing: 4
 
                                                 delegate: Rectangle {
                                                     width: btListView.width
-                                                    height: 28
+                                                    height: 48
                                                     color: modelData.connected ? Config.colors.accent : (btItemArea.containsMouse ? Config.colors.highlight : "transparent")
                                                     
                                                     Row {
-                                                        anchors.fill: parent; anchors.margins: 4; spacing: 8
+                                                        anchors.fill: parent; anchors.margins: 8; spacing: 12
                                                         Text {
                                                             text: "\ue1a7"
-                                                            font.family: iconFont.name; font.pixelSize: 16; color: modelData.connected ? Config.colors.base : Config.colors.text
+                                                            font.family: iconFont.name; font.pixelSize: 24; color: modelData.connected ? Config.colors.base : Config.colors.text
                                                             anchors.verticalCenter: parent.verticalCenter
                                                         }
                                                         Column {
-                                                            anchors.verticalCenter: parent.verticalCenter; spacing: 0
-                                                            Text { text: modelData.name; font.family: fontMonaco.name; font.pixelSize: 10; color: modelData.connected ? Config.colors.base : Config.colors.text; elide: Text.ElideRight; width: 200 }
-                                                            Text { text: modelData.mac; font.family: fontMonaco.name; font.pixelSize: 7; color: modelData.connected ? Config.colors.base : Config.colors.text; opacity: 0.5 }
+                                                            anchors.verticalCenter: parent.verticalCenter; spacing: 2
+                                                            Text { text: modelData.name; font.family: fontMonaco.name; font.pixelSize: 14; color: modelData.connected ? Config.colors.base : Config.colors.text; elide: Text.ElideRight; width: 350 }
+                                                            Text { text: modelData.mac; font.family: fontMonaco.name; font.pixelSize: 11; color: modelData.connected ? Config.colors.base : Config.colors.text; opacity: 0.5 }
                                                         }
                                                         Item { width: 1; height: 1; Layout.fillWidth: true }
-                                                        Text { text: modelData.connected ? "Connected" : ""; font.family: fontMonaco.name; font.pixelSize: 8; color: Config.colors.base; anchors.verticalCenter: parent.verticalCenter }
+                                                        Text { text: modelData.connected ? "Connected" : ""; font.family: fontMonaco.name; font.pixelSize: 12; color: Config.colors.base; anchors.verticalCenter: parent.verticalCenter }
                                                     }
                                                     MouseArea { 
                                                         id: btItemArea; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
@@ -615,29 +617,29 @@ Scope {
                                                 anchors.centerIn: parent
                                                 visible: bluetoothTab.deviceList.length === 0
                                                 text: bluetoothTab.scanning ? "Scanning..." : (bluetoothTab.btEnabled ? "No devices found\nClick scan to discover" : "Bluetooth disabled")
-                                                font.family: fontMonaco.name; font.pixelSize: 10; color: Config.colors.text; opacity: 0.5; horizontalAlignment: Text.AlignHCenter
+                                                font.family: fontMonaco.name; font.pixelSize: 14; color: Config.colors.text; opacity: 0.5; horizontalAlignment: Text.AlignHCenter
                                             }
                                         }
 
-                                        Text { text: "Double-click to connect/disconnect"; font.family: fontMonaco.name; font.pixelSize: 8; color: Config.colors.text; opacity: 0.4 }
+                                        Text { text: "Double-click to connect/disconnect"; font.family: fontMonaco.name; font.pixelSize: 12; color: Config.colors.text; opacity: 0.4 }
                                     }
                                 }
 
                                 // === ABOUT TAB ===
                                 Item {
                                     anchors.fill: parent
-                                    anchors.margins: 12
+                                    anchors.margins: 20
                                     visible: settingsWindow.currentTab === 4
 
                                     Column {
                                         anchors.centerIn: parent
-                                        spacing: 12
-                                        Text { anchors.horizontalCenter: parent.horizontalCenter; text: "Linux Retroism"; font.family: fontCharcoal.name; font.pixelSize: 20; color: Config.colors.text }
-                                        Text { anchors.horizontalCenter: parent.horizontalCenter; text: "Version " + Config.settings.version; font.family: fontMonaco.name; font.pixelSize: 12; color: Config.colors.text }
-                                        Rectangle { width: 200; height: 1; color: Config.colors.outline; anchors.horizontalCenter: parent.horizontalCenter }
-                                        Text { anchors.horizontalCenter: parent.horizontalCenter; text: "A 1980-1990's retro UI aesthetic\nfor Hyprland & Sway"; font.family: fontMonaco.name; font.pixelSize: 10; color: Config.colors.text; horizontalAlignment: Text.AlignHCenter }
-                                        Text { anchors.horizontalCenter: parent.horizontalCenter; text: "Created by diinki"; font.family: fontMonaco.name; font.pixelSize: 10; color: Config.colors.accent }
-                                        Text { anchors.horizontalCenter: parent.horizontalCenter; text: "github.com/diinki/linux-retroism"; font.family: fontMonaco.name; font.pixelSize: 9; color: Config.colors.text; opacity: 0.6 }
+                                        spacing: 18
+                                        Text { anchors.horizontalCenter: parent.horizontalCenter; text: "Linux Retroism"; font.family: fontCharcoal.name; font.pixelSize: 28; color: Config.colors.text }
+                                        Text { anchors.horizontalCenter: parent.horizontalCenter; text: "Version " + Config.settings.version; font.family: fontMonaco.name; font.pixelSize: 16; color: Config.colors.text }
+                                        Rectangle { width: 300; height: 2; color: Config.colors.outline; anchors.horizontalCenter: parent.horizontalCenter }
+                                        Text { anchors.horizontalCenter: parent.horizontalCenter; text: "A 1980-1990's retro UI aesthetic\nfor Hyprland & Sway"; font.family: fontMonaco.name; font.pixelSize: 14; color: Config.colors.text; horizontalAlignment: Text.AlignHCenter }
+                                        Text { anchors.horizontalCenter: parent.horizontalCenter; text: "Created by diinki"; font.family: fontMonaco.name; font.pixelSize: 14; color: Config.colors.accent }
+                                        Text { anchors.horizontalCenter: parent.horizontalCenter; text: "github.com/diinki/linux-retroism"; font.family: fontMonaco.name; font.pixelSize: 13; color: Config.colors.text; opacity: 0.6 }
                                     }
                                 }
                             }
