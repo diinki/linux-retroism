@@ -451,7 +451,6 @@ Scope {
                                                         }
                                                         Text { text: modelData.ssid; font.family: fontMonaco.name; font.pixelSize: 14; color: modelData.active ? Config.colors.base : Config.colors.text; anchors.verticalCenter: parent.verticalCenter; elide: Text.ElideRight; width: 320 }
                                                         Text { text: modelData.security !== "" ? "\ue897" : ""; font.family: iconFont.name; font.pixelSize: 18; color: modelData.active ? Config.colors.base : Config.colors.text; anchors.verticalCenter: parent.verticalCenter; opacity: 0.6 }
-                                                        Item { width: 1; height: 1; Layout.fillWidth: true }
                                                         Text { text: modelData.signal + "%"; font.family: fontMonaco.name; font.pixelSize: 13; color: modelData.active ? Config.colors.base : Config.colors.text; anchors.verticalCenter: parent.verticalCenter; opacity: 0.6 }
                                                     }
                                                     MouseArea { id: wifiItemArea; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onDoubleClicked: networkTab.connectToNetwork(modelData.ssid) }
@@ -603,7 +602,6 @@ Scope {
                                                             Text { text: modelData.name; font.family: fontMonaco.name; font.pixelSize: 14; color: modelData.connected ? Config.colors.base : Config.colors.text; elide: Text.ElideRight; width: 350 }
                                                             Text { text: modelData.mac; font.family: fontMonaco.name; font.pixelSize: 11; color: modelData.connected ? Config.colors.base : Config.colors.text; opacity: 0.5 }
                                                         }
-                                                        Item { width: 1; height: 1; Layout.fillWidth: true }
                                                         Text { text: modelData.connected ? "Connected" : ""; font.family: fontMonaco.name; font.pixelSize: 12; color: Config.colors.base; anchors.verticalCenter: parent.verticalCenter }
                                                     }
                                                     MouseArea { 
