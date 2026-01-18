@@ -191,7 +191,7 @@ PopupWindow {
                                     implicitWidth: 60
 
                                     onClicked: () => {
-                                        Quickshell.execDetached(Config.settings.execCommands.files);
+                                        Quickshell.execDetached(Config.hyprlandFileManager);
                                         root.closeCallback();
                                     }
 
@@ -242,7 +242,7 @@ PopupWindow {
                                     implicitWidth: 60
 
                                     onClicked: () => {
-                                        Quickshell.execDetached(Config.settings.execCommands.terminal);
+                                        Quickshell.execDetached(Config.hyprlandTerminal);
                                         root.closeCallback();
                                     }
 
@@ -344,6 +344,7 @@ PopupWindow {
                                     implicitWidth: 60
 
                                     onClicked: () => {
+                                        Config.openPowerMenu = true;
                                         root.closeCallback();
                                     }
 

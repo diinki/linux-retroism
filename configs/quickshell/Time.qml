@@ -6,7 +6,9 @@ import QtQuick
 Singleton {
     id: root
     readonly property string time: {
-        Qt.formatDateTime(clock.date, " MMM d yyyy | hh:mm");
+        Config.settings.militaryTimeClockFormat
+            ? Qt.formatDateTime(clock.date, " MMM d yyyy | HH:mm")
+            : Qt.formatDateTime(clock.date, " MMM d yyyy | h:mm AP");
     }
 
     SystemClock {

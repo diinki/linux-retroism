@@ -21,12 +21,60 @@ Rectangle {
     property int windowTitleDecorationWidth: 100
     property string windowTitle: "Window Title"
     property string windowTitleIcon: "\uf088"
+    property bool showCloseButton: false
+    signal closeClicked()
 
     /*=== Top Bar Styling (name and bars) ===*/
     Item {
         anchors.left: parent.left
         anchors.right: parent.right
         implicitHeight: 25
+
+        // Close Button (retro style)
+        Rectangle {
+            visible: root.showCloseButton
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.rightMargin: 10
+            width: 16
+            height: 16
+            color: closeButtonArea.pressed ? Config.colors.shadow : Config.colors.highlight
+            border.width: 1
+            border.color: Config.colors.outline
+
+            // 3D effect - top/left highlight
+            Rectangle {
+                anchors.left: parent.left
+                anchors.top: parent.top
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                anchors.margins: 1
+                anchors.rightMargin: closeButtonArea.pressed ? 1 : 0
+                anchors.bottomMargin: closeButtonArea.pressed ? 1 : 0
+                color: "transparent"
+                border.width: 1
+                border.color: closeButtonArea.pressed ? Config.colors.shadow : Config.colors.base
+            }
+
+            // X icon
+            Text {
+                anchors.centerIn: parent
+                anchors.verticalCenterOffset: closeButtonArea.pressed ? 1 : 0
+                text: "×"
+                font.family: fontCharcoal.name
+                font.pixelSize: 14
+                font.bold: true
+                color: Config.colors.text
+            }
+
+            MouseArea {
+                id: closeButtonArea
+                anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
+                onClicked: root.closeClicked()
+            }
+        }
+
         RowLayout {
             id: panelName
             anchors.centerIn: parent
