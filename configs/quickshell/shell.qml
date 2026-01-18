@@ -1036,6 +1036,7 @@ Scope {
 
     // ============ NOTIFICATION SERVER ============
     property int notificationCount: 0
+    property var notificationHistory: []
     
     NotificationServer {
         id: notificationServer
@@ -1048,7 +1049,17 @@ Scope {
         onNotification: notification => {
             notification.tracked = true;
             root.notificationCount = trackedNotifications.values.length;
-            // Bildirimler manuel olarak kapatılana kadar kalır
+            
+            // Geçmiş listesine ekle
+            let historyItem = {
+                id: notification.id,
+                appName: notification.appName || "App",
+                summary: notification.summary || "",
+                body: notification.body || "",
+                urgency: notification.urgency,
+                timestamp: new Date().toLocaleTimeString()
+            };
+            root.notificationHistory = [historyItem].concat(root.notificationHistory);
         }
     }
     
@@ -1057,6 +1068,14 @@ Scope {
         function onValuesChanged() {
             root.notificationCount = notificationServer.trackedNotifications.values.length;
         }
+    }
+    
+    function clearNotificationHistory() {
+        root.notificationHistory = [];
+    }
+    
+    function removeFromHistory(notifId) {
+        root.notificationHistory = root.notificationHistory.filter(n => n.id !== notifId);
     }
 
     // ============ NOTIFICATION POPUP (Top Right) ============
@@ -1402,11 +1421,11 @@ Scope {
                     color: clearAllArea.pressed ? Config.colors.shadow : Config.colors.highlight
                     border.width: 1
                     border.color: Config.colors.outline
-                    visible: root.notificationCount > 0
+                    visible: root.notificationHistory.length > 0
 
                     Text {
                         anchors.centerIn: parent
-                        text: "Clear All (" + root.notificationCount + ")"
+                        text: "Clear All (" + root.notificationHistory.length + ")"
                         font.family: fontCharcoal.name
                         font.pixelSize: 10
                         color: Config.colors.text
@@ -1417,17 +1436,14 @@ Scope {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
                         onClicked: {
-                            let notifications = notificationServer.trackedNotifications.values.slice();
-                            for (let notif of notifications) {
-                                notif.dismiss();
-                            }
+                            root.clearNotificationHistory();
                         }
                     }
                 }
 
                 // Notification list
                 Flickable {
-                    x: 6; y: root.notificationCount > 0 ? 70 : 40
+                    x: 6; y: root.notificationHistory.length > 0 ? 70 : 40
                     width: parent.width - 12
                     height: parent.height - y - 10
                     contentHeight: historyColumn.height
@@ -1441,7 +1457,7 @@ Scope {
                         // Empty state
                         Text {
                             width: parent.width
-                            visible: root.notificationCount === 0
+                            visible: root.notificationHistory.length === 0
                             text: "No notifications"
                             font.family: fontMonaco.name
                             font.pixelSize: 12
@@ -1451,11 +1467,11 @@ Scope {
                         }
 
                         Repeater {
-                            model: notificationServer.trackedNotifications
+                            model: root.notificationHistory
 
                             Rectangle {
                                 width: parent.width
-                                height: 70
+                                height: 80
                                 color: Config.colors.shadow
 
                                 // Border
@@ -1476,26 +1492,33 @@ Scope {
 
                                 // Content
                                 Column {
-                                    x: 12; y: 8
-                                    width: parent.width - 40
-                                    spacing: 4
+                                    x: 12; y: 6
+                                    width: parent.width - 50
+                                    spacing: 2
 
                                     Row {
                                         width: parent.width
                                         spacing: 8
 
                                         Text {
-                                            text: modelData.appName || "App"
+                                            text: modelData.appName
                                             font.family: fontCharcoal.name
                                             font.pixelSize: 9
                                             font.bold: true
                                             color: Config.colors.accent
                                         }
+
+                                        Text {
+                                            text: modelData.timestamp
+                                            font.family: fontMonaco.name
+                                            font.pixelSize: 8
+                                            color: Config.colors.shadow
+                                        }
                                     }
 
                                     Text {
                                         width: parent.width
-                                        text: modelData.summary || ""
+                                        text: modelData.summary
                                         font.family: fontCharcoal.name
                                         font.pixelSize: 12
                                         font.bold: true
@@ -1505,9 +1528,9 @@ Scope {
 
                                     Text {
                                         width: parent.width
-                                        text: modelData.body || ""
+                                        text: modelData.body
                                         font.family: fontMonaco.name
-                                        font.pixelSize: 11
+                                        font.pixelSize: 10
                                         color: Config.colors.text
                                         opacity: 0.8
                                         wrapMode: Text.WordWrap
@@ -1521,7 +1544,7 @@ Scope {
                                     anchors.right: parent.right
                                     anchors.top: parent.top
                                     anchors.margins: 6
-                                    width: 18; height: 18
+                                    width: 20; height: 20
                                     color: historyDismissArea.pressed ? Config.colors.shadow : Config.colors.base
                                     border.width: 1
                                     border.color: Config.colors.outline
@@ -1529,7 +1552,7 @@ Scope {
                                     Text {
                                         anchors.centerIn: parent
                                         text: "×"
-                                        font.pixelSize: 12
+                                        font.pixelSize: 14
                                         font.bold: true
                                         color: Config.colors.text
                                     }
@@ -1538,7 +1561,7 @@ Scope {
                                         id: historyDismissArea
                                         anchors.fill: parent
                                         cursorShape: Qt.PointingHandCursor
-                                        onClicked: modelData.dismiss()
+                                        onClicked: root.removeFromHistory(modelData.id)
                                     }
                                 }
                             }
