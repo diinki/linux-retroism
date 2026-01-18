@@ -1048,12 +1048,7 @@ Scope {
         onNotification: notification => {
             notification.tracked = true;
             root.notificationCount = trackedNotifications.values.length;
-            console.log("Notification added, count:", root.notificationCount);
-            // Auto-dismiss after timeout (or 5 seconds default)
-            let timeout = notification.expireTimeout > 0 ? notification.expireTimeout : 5000;
-            if (!notification.resident) {
-                dismissTimer.setTimeout(notification, timeout);
-            }
+            // Bildirimler manuel olarak kapatılana kadar kalır
         }
     }
     
@@ -1061,23 +1056,6 @@ Scope {
         target: notificationServer.trackedNotifications
         function onValuesChanged() {
             root.notificationCount = notificationServer.trackedNotifications.values.length;
-            console.log("Values changed, count:", root.notificationCount);
-        }
-    }
-
-    // Timer for auto-dismissing notifications
-    Timer {
-        id: dismissTimer
-        property var targetNotification: null
-        function setTimeout(notif, ms) {
-            targetNotification = notif;
-            interval = ms;
-            restart();
-        }
-        onTriggered: {
-            if (targetNotification && !targetNotification.resident) {
-                targetNotification.expire();
-            }
         }
     }
 
