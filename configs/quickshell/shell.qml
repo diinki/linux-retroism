@@ -12,6 +12,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Hyprland
+import Quickshell.Services.Notifications
 
 import "taskbar" as Taskbar
 import "popups" as Popups
@@ -31,6 +32,14 @@ Scope {
         source: "fonts/Charcoal.ttf"
     }
     Taskbar.Bar {}
+
+    // ============ NOTIFICATION HISTORY IPC ============
+    IpcHandler {
+        target: "notificationHistory"
+        function toggleNotificationHistory() {
+            Config.openNotificationHistory = !Config.openNotificationHistory;
+        }
+    }
 
     // ============ SETTINGS WIDGET (Overlay) ============
     Variants {
@@ -1016,6 +1025,528 @@ Scope {
                                     border.width: 1; border.color: Config.colors.outline
                                     Text { anchors.centerIn: parent; text: "No"; font.family: fontCharcoal.name; font.pixelSize: 10; color: Config.colors.text }
                                     MouseArea { id: noArea; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: powerMenu.powerMenuState = "" }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // ============ NOTIFICATION SERVER ============
+    NotificationServer {
+        id: notificationServer
+        keepOnReload: true
+        persistenceSupported: true
+        bodySupported: true
+        actionsSupported: true
+        imageSupported: true
+
+        onNotification: notification => {
+            notification.tracked = true;
+            // Auto-dismiss after timeout (or 5 seconds default)
+            let timeout = notification.expireTimeout > 0 ? notification.expireTimeout : 5000;
+            if (!notification.resident) {
+                dismissTimer.setTimeout(notification, timeout);
+            }
+        }
+    }
+
+    // Timer for auto-dismissing notifications
+    Timer {
+        id: dismissTimer
+        property var targetNotification: null
+        function setTimeout(notif, ms) {
+            targetNotification = notif;
+            interval = ms;
+            restart();
+        }
+        onTriggered: {
+            if (targetNotification && !targetNotification.resident) {
+                targetNotification.expire();
+            }
+        }
+    }
+
+    // ============ NOTIFICATION POPUP (Top Right) ============
+    Variants {
+        model: Quickshell.screens
+        PanelWindow {
+            id: notificationPopup
+            required property var modelData
+            screen: modelData
+            visible: notificationServer.trackedNotifications.count > 0 && Hyprland.focusedMonitor.name === modelData.name && !Config.openNotificationHistory
+
+            WlrLayershell.layer: WlrLayer.Overlay
+            WlrLayershell.namespace: "notification-popup"
+            exclusionMode: ExclusionMode.Ignore
+
+            anchors {
+                top: true
+                right: true
+            }
+            width: 340
+            height: Math.min(notificationServer.trackedNotifications.count * 90, 400)
+            margins.top: 50
+            margins.right: 10
+            color: "transparent"
+
+            Column {
+                anchors.fill: parent
+                spacing: 8
+
+                Repeater {
+                    model: notificationServer.trackedNotifications
+
+                    Rectangle {
+                        id: notifCard
+                        width: 320
+                        height: 80
+                        color: Config.colors.base
+
+                        // Outer border (3D effect)
+                        Rectangle {
+                            anchors.fill: parent
+                            color: "transparent"
+                            border.width: 2
+                            border.color: Config.colors.outline
+                        }
+
+                        // Highlight edge (top-left)
+                        Rectangle {
+                            width: parent.width - 4; height: 2
+                            x: 2; y: 2
+                            color: Config.colors.highlight
+                        }
+                        Rectangle {
+                            width: 2; height: parent.height - 4
+                            x: 2; y: 2
+                            color: Config.colors.highlight
+                        }
+
+                        // Shadow edge (bottom-right)
+                        Rectangle {
+                            width: parent.width - 4; height: 2
+                            x: 2; y: parent.height - 4
+                            color: Config.colors.shadow
+                        }
+                        Rectangle {
+                            width: 2; height: parent.height - 4
+                            x: parent.width - 4; y: 2
+                            color: Config.colors.shadow
+                        }
+
+                        // Title bar
+                        Rectangle {
+                            id: notifTitleBar
+                            x: 4; y: 4
+                            width: parent.width - 8; height: 18
+                            color: modelData.urgency === NotificationUrgency.Critical ? Config.colors.urgent : Config.colors.accent
+
+                            // Striped pattern
+                            Repeater {
+                                model: Math.floor((parent.width - 100) / 4)
+                                Rectangle {
+                                    x: 4 + index * 4
+                                    y: 0
+                                    width: 2
+                                    height: parent.height
+                                    color: Qt.rgba(0, 0, 0, 0.2)
+                                }
+                            }
+
+                            Row {
+                                anchors.right: parent.right
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.rightMargin: 4
+                                spacing: 4
+
+                                Text {
+                                    text: modelData.appName || "Notification"
+                                    font.family: fontCharcoal.name
+                                    font.pixelSize: 10
+                                    font.bold: true
+                                    color: Config.colors.text
+                                }
+
+                                // Close button
+                                Rectangle {
+                                    width: 14; height: 14
+                                    color: closeArea.pressed ? Config.colors.shadow : Config.colors.base
+                                    border.width: 1
+                                    border.color: Config.colors.outline
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: "×"
+                                        font.pixelSize: 12
+                                        font.bold: true
+                                        color: Config.colors.text
+                                    }
+
+                                    MouseArea {
+                                        id: closeArea
+                                        anchors.fill: parent
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: modelData.dismiss()
+                                    }
+                                }
+                            }
+                        }
+
+                        // Content
+                        Column {
+                            x: 8; y: 26
+                            width: parent.width - 16
+                            spacing: 2
+
+                            Text {
+                                width: parent.width
+                                text: modelData.summary || ""
+                                font.family: fontCharcoal.name
+                                font.pixelSize: 11
+                                font.bold: true
+                                color: Config.colors.text
+                                elide: Text.ElideRight
+                            }
+
+                            Text {
+                                width: parent.width
+                                text: modelData.body || ""
+                                font.family: fontMonaco.name
+                                font.pixelSize: 9
+                                color: Config.colors.subtext
+                                wrapMode: Text.WordWrap
+                                maximumLineCount: 2
+                                elide: Text.ElideRight
+                            }
+                        }
+
+                        // Actions
+                        Row {
+                            anchors.bottom: parent.bottom
+                            anchors.bottomMargin: 6
+                            anchors.right: parent.right
+                            anchors.rightMargin: 8
+                            spacing: 4
+                            visible: modelData.actions.length > 0
+
+                            Repeater {
+                                model: modelData.actions
+                                Rectangle {
+                                    width: actionText.width + 12
+                                    height: 16
+                                    color: actionArea.pressed ? Config.colors.shadow : Config.colors.highlight
+                                    border.width: 1
+                                    border.color: Config.colors.outline
+
+                                    Text {
+                                        id: actionText
+                                        anchors.centerIn: parent
+                                        text: modelData.text
+                                        font.family: fontCharcoal.name
+                                        font.pixelSize: 8
+                                        color: Config.colors.text
+                                    }
+
+                                    MouseArea {
+                                        id: actionArea
+                                        anchors.fill: parent
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: modelData.invoke()
+                                    }
+                                }
+                            }
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            z: -1
+                            onClicked: modelData.dismiss()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // ============ NOTIFICATION HISTORY PANEL (Right Side) ============
+    Variants {
+        model: Quickshell.screens
+        PanelWindow {
+            id: notificationHistoryPanel
+            required property var modelData
+            screen: modelData
+            visible: Config.openNotificationHistory && Hyprland.focusedMonitor.name === modelData.name
+
+            WlrLayershell.layer: WlrLayer.Overlay
+            WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
+            WlrLayershell.namespace: "notification-history"
+
+            anchors {
+                top: true
+                bottom: true
+                right: true
+            }
+            width: 380
+            color: "transparent"
+
+            Rectangle {
+                anchors.fill: parent
+                anchors.margins: 0
+                color: Config.colors.base
+
+                // Outer border
+                Rectangle {
+                    anchors.fill: parent
+                    color: "transparent"
+                    border.width: 3
+                    border.color: Config.colors.outline
+                }
+
+                // Highlight edge
+                Rectangle {
+                    width: parent.width - 6; height: 3
+                    x: 3; y: 3
+                    color: Config.colors.highlight
+                }
+                Rectangle {
+                    width: 3; height: parent.height - 6
+                    x: 3; y: 3
+                    color: Config.colors.highlight
+                }
+
+                // Shadow edge
+                Rectangle {
+                    width: parent.width - 6; height: 3
+                    x: 3; y: parent.height - 6
+                    color: Config.colors.shadow
+                }
+                Rectangle {
+                    width: 3; height: parent.height - 6
+                    x: parent.width - 6; y: 3
+                    color: Config.colors.shadow
+                }
+
+                // Title bar
+                Rectangle {
+                    id: historyTitleBar
+                    x: 6; y: 6
+                    width: parent.width - 12; height: 28
+                    color: Config.colors.accent
+
+                    // Striped pattern
+                    Repeater {
+                        model: Math.floor((parent.width - 150) / 4)
+                        Rectangle {
+                            x: 4 + index * 4
+                            y: 0
+                            width: 2
+                            height: parent.height
+                            color: Qt.rgba(0, 0, 0, 0.2)
+                        }
+                    }
+
+                    Row {
+                        anchors.right: parent.right
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.rightMargin: 6
+                        spacing: 8
+
+                        Text {
+                            text: "\ue7f5"
+                            font.family: iconFont.name
+                            font.pixelSize: 16
+                            color: Config.colors.text
+                        }
+
+                        Text {
+                            text: "Notifications"
+                            font.family: fontCharcoal.name
+                            font.pixelSize: 14
+                            font.bold: true
+                            color: Config.colors.text
+                        }
+
+                        // Close button
+                        Rectangle {
+                            width: 20; height: 20
+                            color: historyCloseArea.pressed ? Config.colors.shadow : Config.colors.base
+                            border.width: 1
+                            border.color: Config.colors.outline
+
+                            Rectangle {
+                                anchors.fill: parent
+                                anchors.margins: 1
+                                anchors.bottomMargin: 2
+                                anchors.rightMargin: 2
+                                color: "transparent"
+                                border.width: 1
+                                border.color: Config.colors.highlight
+                            }
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: "×"
+                                font.pixelSize: 14
+                                font.bold: true
+                                color: Config.colors.text
+                            }
+
+                            MouseArea {
+                                id: historyCloseArea
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: Config.openNotificationHistory = false
+                            }
+                        }
+                    }
+                }
+
+                // Clear All button
+                Rectangle {
+                    x: 6; y: 40
+                    width: parent.width - 12; height: 24
+                    color: clearAllArea.pressed ? Config.colors.shadow : Config.colors.highlight
+                    border.width: 1
+                    border.color: Config.colors.outline
+                    visible: notificationServer.trackedNotifications.count > 0
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: "Clear All (" + notificationServer.trackedNotifications.count + ")"
+                        font.family: fontCharcoal.name
+                        font.pixelSize: 10
+                        color: Config.colors.text
+                    }
+
+                    MouseArea {
+                        id: clearAllArea
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            for (let i = notificationServer.trackedNotifications.count - 1; i >= 0; i--) {
+                                notificationServer.trackedNotifications.values[i].dismiss();
+                            }
+                        }
+                    }
+                }
+
+                // Notification list
+                Flickable {
+                    x: 6; y: notificationServer.trackedNotifications.count > 0 ? 70 : 40
+                    width: parent.width - 12
+                    height: parent.height - y - 10
+                    contentHeight: historyColumn.height
+                    clip: true
+
+                    Column {
+                        id: historyColumn
+                        width: parent.width
+                        spacing: 8
+
+                        // Empty state
+                        Text {
+                            width: parent.width
+                            visible: notificationServer.trackedNotifications.count === 0
+                            text: "No notifications"
+                            font.family: fontMonaco.name
+                            font.pixelSize: 12
+                            color: Config.colors.subtext
+                            horizontalAlignment: Text.AlignHCenter
+                            topPadding: 40
+                        }
+
+                        Repeater {
+                            model: notificationServer.trackedNotifications
+
+                            Rectangle {
+                                width: parent.width
+                                height: 70
+                                color: Config.colors.shadow
+
+                                // Border
+                                Rectangle {
+                                    anchors.fill: parent
+                                    color: "transparent"
+                                    border.width: 1
+                                    border.color: Config.colors.outline
+                                }
+
+                                // Urgency indicator
+                                Rectangle {
+                                    width: 4
+                                    height: parent.height
+                                    color: modelData.urgency === NotificationUrgency.Critical ? Config.colors.urgent :
+                                           modelData.urgency === NotificationUrgency.Low ? Config.colors.highlight : Config.colors.accent
+                                }
+
+                                // Content
+                                Column {
+                                    x: 12; y: 8
+                                    width: parent.width - 40
+                                    spacing: 4
+
+                                    Row {
+                                        width: parent.width
+                                        spacing: 8
+
+                                        Text {
+                                            text: modelData.appName || "App"
+                                            font.family: fontCharcoal.name
+                                            font.pixelSize: 9
+                                            font.bold: true
+                                            color: Config.colors.accent
+                                        }
+                                    }
+
+                                    Text {
+                                        width: parent.width
+                                        text: modelData.summary || ""
+                                        font.family: fontCharcoal.name
+                                        font.pixelSize: 11
+                                        font.bold: true
+                                        color: Config.colors.text
+                                        elide: Text.ElideRight
+                                    }
+
+                                    Text {
+                                        width: parent.width
+                                        text: modelData.body || ""
+                                        font.family: fontMonaco.name
+                                        font.pixelSize: 9
+                                        color: Config.colors.subtext
+                                        wrapMode: Text.WordWrap
+                                        maximumLineCount: 2
+                                        elide: Text.ElideRight
+                                    }
+                                }
+
+                                // Dismiss button
+                                Rectangle {
+                                    anchors.right: parent.right
+                                    anchors.top: parent.top
+                                    anchors.margins: 6
+                                    width: 18; height: 18
+                                    color: historyDismissArea.pressed ? Config.colors.shadow : Config.colors.base
+                                    border.width: 1
+                                    border.color: Config.colors.outline
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: "×"
+                                        font.pixelSize: 12
+                                        font.bold: true
+                                        color: Config.colors.text
+                                    }
+
+                                    MouseArea {
+                                        id: historyDismissArea
+                                        anchors.fill: parent
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: modelData.dismiss()
+                                    }
                                 }
                             }
                         }

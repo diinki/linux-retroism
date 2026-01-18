@@ -136,6 +136,7 @@ Singleton {
 
     property bool openSettingsWindow: false
     property bool openPowerMenu: false
+    property bool openNotificationHistory: false
 
     property alias settings: settingsJsonAdapter.settings
     FileView {
