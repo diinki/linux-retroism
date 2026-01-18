@@ -262,90 +262,226 @@ Scope {
 
                                 // === SYSTEM TAB ===
                                 Item {
+                                    id: systemTab
                                     anchors.fill: parent
                                     anchors.margins: 20
                                     visible: settingsWindow.currentTab === 1
 
-                                    Column {
+                                    property int brightness: 100
+                                    property int maxBrightness: 100
+                                    property real volume: 1.0
+                                    property bool muted: false
+                                    property string brightnessOutput: ""
+                                    property string maxBrightnessOutput: ""
+                                    property string volumeOutput: ""
+
+                                    Component.onCompleted: {
+                                        brightnessProc.running = true;
+                                        maxBrightnessProc.running = true;
+                                        volumeProc.running = true;
+                                    }
+
+                                    Process {
+                                        id: brightnessProc
+                                        command: ["brightnessctl", "g"]
+                                        stdout: SplitParser { onRead: data => { systemTab.brightnessOutput = data.trim(); } }
+                                        onExited: { systemTab.brightness = parseInt(systemTab.brightnessOutput) || 0; }
+                                    }
+
+                                    Process {
+                                        id: maxBrightnessProc
+                                        command: ["brightnessctl", "m"]
+                                        stdout: SplitParser { onRead: data => { systemTab.maxBrightnessOutput = data.trim(); } }
+                                        onExited: { systemTab.maxBrightness = parseInt(systemTab.maxBrightnessOutput) || 100; }
+                                    }
+
+                                    Process {
+                                        id: setBrightnessProc
+                                    }
+
+                                    Process {
+                                        id: volumeProc
+                                        command: ["wpctl", "get-volume", "@DEFAULT_AUDIO_SINK@"]
+                                        stdout: SplitParser { onRead: data => { systemTab.volumeOutput = data.trim(); } }
+                                        onExited: {
+                                            var match = systemTab.volumeOutput.match(/Volume:\s*([\d.]+)/);
+                                            if (match) systemTab.volume = parseFloat(match[1]);
+                                            systemTab.muted = systemTab.volumeOutput.includes("[MUTED]");
+                                        }
+                                    }
+
+                                    Process {
+                                        id: setVolumeProc
+                                        onExited: { volumeProc.running = true; }
+                                    }
+
+                                    function setBrightness(percent) {
+                                        setBrightnessProc.command = ["brightnessctl", "s", percent + "%"];
+                                        setBrightnessProc.running = true;
+                                        brightness = Math.round(maxBrightness * percent / 100);
+                                    }
+
+                                    function setVolume(percent) {
+                                        setVolumeProc.command = ["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", (percent / 100).toFixed(2)];
+                                        setVolumeProc.running = true;
+                                    }
+
+                                    function toggleMute() {
+                                        setVolumeProc.command = ["wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"];
+                                        setVolumeProc.running = true;
+                                    }
+
+                                    Flickable {
                                         anchors.fill: parent
-                                        spacing: 20
+                                        contentHeight: systemContent.height
+                                        clip: true
 
-                                        // Terminal
                                         Column {
+                                            id: systemContent
                                             width: parent.width
-                                            spacing: 8
-                                            Text { text: "Terminal Application"; font.family: fontCharcoal.name; font.pixelSize: 15; color: Config.colors.text }
-                                            Row {
-                                                spacing: 12
-                                                Rectangle {
-                                                    width: 280; height: 32
-                                                    color: Config.colors.shadow; border.width: 2; border.color: Config.colors.outline
-                                                    TextInput {
-                                                        id: terminalInput
-                                                        anchors.fill: parent; anchors.margins: 6
-                                                        text: Config.hyprlandTerminal
-                                                        font.family: fontMonaco.name; font.pixelSize: 14; color: Config.colors.text
-                                                        clip: true; selectByMouse: true; activeFocusOnPress: true
-                                                        verticalAlignment: TextInput.AlignVCenter
-                                                    }
+                                            spacing: 16
+
+                                            // Brightness
+                                            Column {
+                                                width: parent.width
+                                                spacing: 8
+                                                Row {
+                                                    spacing: 10
+                                                    Text { text: "\ue518"; font.family: iconFont.name; font.pixelSize: 20; color: Config.colors.text; anchors.verticalCenter: parent.verticalCenter }
+                                                    Text { text: "Brightness"; font.family: fontCharcoal.name; font.pixelSize: 15; color: Config.colors.text; anchors.verticalCenter: parent.verticalCenter }
                                                 }
-                                                Rectangle {
-                                                    width: 70; height: 32
-                                                    color: termSaveArea.pressed ? Config.colors.shadow : Config.colors.highlight
-                                                    border.width: 2; border.color: Config.colors.outline
-                                                    Text { anchors.centerIn: parent; text: "Save"; font.family: fontCharcoal.name; font.pixelSize: 13; color: Config.colors.text }
-                                                    MouseArea { id: termSaveArea; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: Config.setHyprlandTerminal(terminalInput.text) }
+                                                Row {
+                                                    spacing: 16
+                                                    Rectangle {
+                                                        width: 400; height: 28
+                                                        color: Config.colors.shadow; border.width: 2; border.color: Config.colors.outline
+                                                        Rectangle {
+                                                            anchors.left: parent.left; anchors.top: parent.top; anchors.bottom: parent.bottom; anchors.margins: 3
+                                                            width: (systemTab.maxBrightness > 0 ? systemTab.brightness / systemTab.maxBrightness : 0) * (parent.width - 6)
+                                                            color: Config.colors.accent
+                                                        }
+                                                        MouseArea {
+                                                            anchors.fill: parent
+                                                            onClicked: mouse => { systemTab.setBrightness(Math.round(mouse.x / width * 100)); }
+                                                            onPositionChanged: mouse => { if (pressed) systemTab.setBrightness(Math.round(mouse.x / width * 100)); }
+                                                        }
+                                                    }
+                                                    Text { text: Math.round(systemTab.maxBrightness > 0 ? systemTab.brightness / systemTab.maxBrightness * 100 : 0) + "%"; font.family: fontMonaco.name; font.pixelSize: 14; color: Config.colors.text; anchors.verticalCenter: parent.verticalCenter; width: 50 }
                                                 }
                                             }
-                                            Text { text: "→ hyprland.conf: $terminal"; font.family: fontMonaco.name; font.pixelSize: 11; color: Config.colors.text; opacity: 0.5 }
-                                        }
 
-                                        // File Manager
-                                        Column {
-                                            width: parent.width
-                                            spacing: 8
-                                            Text { text: "File Manager Application"; font.family: fontCharcoal.name; font.pixelSize: 15; color: Config.colors.text }
-                                            Row {
-                                                spacing: 12
-                                                Rectangle {
-                                                    width: 280; height: 32
-                                                    color: Config.colors.shadow; border.width: 2; border.color: Config.colors.outline
-                                                    TextInput {
-                                                        id: filesInput
-                                                        anchors.fill: parent; anchors.margins: 6
-                                                        text: Config.hyprlandFileManager
-                                                        font.family: fontMonaco.name; font.pixelSize: 14; color: Config.colors.text
-                                                        clip: true; selectByMouse: true; activeFocusOnPress: true
-                                                        verticalAlignment: TextInput.AlignVCenter
+                                            // Volume
+                                            Column {
+                                                width: parent.width
+                                                spacing: 8
+                                                Row {
+                                                    spacing: 10
+                                                    Text { text: systemTab.muted ? "\ue04f" : "\ue050"; font.family: iconFont.name; font.pixelSize: 20; color: Config.colors.text; anchors.verticalCenter: parent.verticalCenter }
+                                                    Text { text: "Volume"; font.family: fontCharcoal.name; font.pixelSize: 15; color: Config.colors.text; anchors.verticalCenter: parent.verticalCenter }
+                                                    Rectangle {
+                                                        width: 60; height: 24
+                                                        color: muteArea.pressed ? Config.colors.shadow : Config.colors.highlight
+                                                        border.width: 2; border.color: Config.colors.outline
+                                                        Text { anchors.centerIn: parent; text: systemTab.muted ? "Unmute" : "Mute"; font.family: fontMonaco.name; font.pixelSize: 10; color: Config.colors.text }
+                                                        MouseArea { id: muteArea; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: systemTab.toggleMute() }
                                                     }
                                                 }
-                                                Rectangle {
-                                                    width: 70; height: 32
-                                                    color: filesSaveArea.pressed ? Config.colors.shadow : Config.colors.highlight
-                                                    border.width: 2; border.color: Config.colors.outline
-                                                    Text { anchors.centerIn: parent; text: "Save"; font.family: fontCharcoal.name; font.pixelSize: 13; color: Config.colors.text }
-                                                    MouseArea { id: filesSaveArea; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: Config.setHyprlandFileManager(filesInput.text) }
+                                                Row {
+                                                    spacing: 16
+                                                    Rectangle {
+                                                        width: 400; height: 28
+                                                        color: Config.colors.shadow; border.width: 2; border.color: Config.colors.outline
+                                                        opacity: systemTab.muted ? 0.5 : 1
+                                                        Rectangle {
+                                                            anchors.left: parent.left; anchors.top: parent.top; anchors.bottom: parent.bottom; anchors.margins: 3
+                                                            width: Math.min(1, systemTab.volume) * (parent.width - 6)
+                                                            color: systemTab.volume > 1 ? Config.colors.urgent : Config.colors.accent
+                                                        }
+                                                        MouseArea {
+                                                            anchors.fill: parent
+                                                            onClicked: mouse => { systemTab.setVolume(Math.round(mouse.x / width * 100)); }
+                                                            onPositionChanged: mouse => { if (pressed) systemTab.setVolume(Math.round(mouse.x / width * 100)); }
+                                                        }
+                                                    }
+                                                    Text { text: Math.round(systemTab.volume * 100) + "%"; font.family: fontMonaco.name; font.pixelSize: 14; color: Config.colors.text; anchors.verticalCenter: parent.verticalCenter; width: 50 }
                                                 }
                                             }
-                                            Text { text: "→ hyprland.conf: $fileManager"; font.family: fontMonaco.name; font.pixelSize: 11; color: Config.colors.text; opacity: 0.5 }
-                                        }
 
-                                        Rectangle { width: parent.width; height: 2; color: Config.colors.outline; opacity: 0.5 }
+                                            Rectangle { width: parent.width; height: 2; color: Config.colors.outline; opacity: 0.5 }
 
-                                        Text { text: "System Information"; font.family: fontCharcoal.name; font.pixelSize: 16; font.bold: true; color: Config.colors.text }
+                                            // Terminal
+                                            Column {
+                                                width: parent.width
+                                                spacing: 6
+                                                Text { text: "Terminal Application"; font.family: fontCharcoal.name; font.pixelSize: 14; color: Config.colors.text }
+                                                Row {
+                                                    spacing: 12
+                                                    Rectangle {
+                                                        width: 280; height: 28
+                                                        color: Config.colors.shadow; border.width: 2; border.color: Config.colors.outline
+                                                        TextInput {
+                                                            id: terminalInput
+                                                            anchors.fill: parent; anchors.margins: 5
+                                                            text: Config.hyprlandTerminal
+                                                            font.family: fontMonaco.name; font.pixelSize: 12; color: Config.colors.text
+                                                            clip: true; selectByMouse: true; activeFocusOnPress: true
+                                                            verticalAlignment: TextInput.AlignVCenter
+                                                        }
+                                                    }
+                                                    Rectangle {
+                                                        width: 60; height: 28
+                                                        color: termSaveArea.pressed ? Config.colors.shadow : Config.colors.highlight
+                                                        border.width: 2; border.color: Config.colors.outline
+                                                        Text { anchors.centerIn: parent; text: "Save"; font.family: fontCharcoal.name; font.pixelSize: 11; color: Config.colors.text }
+                                                        MouseArea { id: termSaveArea; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: Config.setHyprlandTerminal(terminalInput.text) }
+                                                    }
+                                                }
+                                            }
 
-                                        Grid {
-                                            columns: 2; columnSpacing: 20; rowSpacing: 12
-                                            Text { text: "OS:"; font.family: fontCharcoal.name; font.pixelSize: 14; color: Config.colors.text }
-                                            Text { text: Config.settings.systemDetails.osName; font.family: fontMonaco.name; font.pixelSize: 14; color: Config.colors.text }
-                                            Text { text: "Version:"; font.family: fontCharcoal.name; font.pixelSize: 14; color: Config.colors.text }
-                                            Text { text: Config.settings.systemDetails.osVersion; font.family: fontMonaco.name; font.pixelSize: 14; color: Config.colors.text }
-                                            Text { text: "CPU:"; font.family: fontCharcoal.name; font.pixelSize: 14; color: Config.colors.text }
-                                            Text { text: Config.settings.systemDetails.cpu; font.family: fontMonaco.name; font.pixelSize: 14; color: Config.colors.text }
-                                            Text { text: "GPU:"; font.family: fontCharcoal.name; font.pixelSize: 14; color: Config.colors.text }
-                                            Text { text: Config.settings.systemDetails.gpu; font.family: fontMonaco.name; font.pixelSize: 14; color: Config.colors.text }
-                                            Text { text: "RAM:"; font.family: fontCharcoal.name; font.pixelSize: 14; color: Config.colors.text }
-                                            Text { text: Config.settings.systemDetails.ram; font.family: fontMonaco.name; font.pixelSize: 14; color: Config.colors.text }
+                                            // File Manager
+                                            Column {
+                                                width: parent.width
+                                                spacing: 6
+                                                Text { text: "File Manager Application"; font.family: fontCharcoal.name; font.pixelSize: 14; color: Config.colors.text }
+                                                Row {
+                                                    spacing: 12
+                                                    Rectangle {
+                                                        width: 280; height: 28
+                                                        color: Config.colors.shadow; border.width: 2; border.color: Config.colors.outline
+                                                        TextInput {
+                                                            id: filesInput
+                                                            anchors.fill: parent; anchors.margins: 5
+                                                            text: Config.hyprlandFileManager
+                                                            font.family: fontMonaco.name; font.pixelSize: 12; color: Config.colors.text
+                                                            clip: true; selectByMouse: true; activeFocusOnPress: true
+                                                            verticalAlignment: TextInput.AlignVCenter
+                                                        }
+                                                    }
+                                                    Rectangle {
+                                                        width: 60; height: 28
+                                                        color: filesSaveArea.pressed ? Config.colors.shadow : Config.colors.highlight
+                                                        border.width: 2; border.color: Config.colors.outline
+                                                        Text { anchors.centerIn: parent; text: "Save"; font.family: fontCharcoal.name; font.pixelSize: 11; color: Config.colors.text }
+                                                        MouseArea { id: filesSaveArea; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: Config.setHyprlandFileManager(filesInput.text) }
+                                                    }
+                                                }
+                                            }
+
+                                            Rectangle { width: parent.width; height: 2; color: Config.colors.outline; opacity: 0.5 }
+
+                                            Text { text: "System Information"; font.family: fontCharcoal.name; font.pixelSize: 14; font.bold: true; color: Config.colors.text }
+
+                                            Grid {
+                                                columns: 2; columnSpacing: 16; rowSpacing: 8
+                                                Text { text: "OS:"; font.family: fontCharcoal.name; font.pixelSize: 12; color: Config.colors.text }
+                                                Text { text: Config.settings.systemDetails.osName; font.family: fontMonaco.name; font.pixelSize: 12; color: Config.colors.text }
+                                                Text { text: "CPU:"; font.family: fontCharcoal.name; font.pixelSize: 12; color: Config.colors.text }
+                                                Text { text: Config.settings.systemDetails.cpu; font.family: fontMonaco.name; font.pixelSize: 12; color: Config.colors.text }
+                                                Text { text: "GPU:"; font.family: fontCharcoal.name; font.pixelSize: 12; color: Config.colors.text }
+                                                Text { text: Config.settings.systemDetails.gpu; font.family: fontMonaco.name; font.pixelSize: 12; color: Config.colors.text }
+                                                Text { text: "RAM:"; font.family: fontCharcoal.name; font.pixelSize: 12; color: Config.colors.text }
+                                                Text { text: Config.settings.systemDetails.ram; font.family: fontMonaco.name; font.pixelSize: 12; color: Config.colors.text }
+                                            }
                                         }
                                     }
                                 }
