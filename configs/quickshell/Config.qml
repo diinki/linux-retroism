@@ -6,6 +6,64 @@ import Quickshell.Io
 Singleton {
     id: root
 
+    // Hyprland config values
+    property string hyprlandTerminal: "kitty"
+    property string hyprlandFileManager: "nautilus"
+    property string hyprlandConfigPath: "/home/ozhan/.config/hypr/hyprland.conf"
+
+    // Read hyprland.conf on startup
+    property string terminalOutput: ""
+    property string fileManagerOutput: ""
+
+    Process {
+        id: readTerminal
+        command: ["grep", "^\\$terminal", hyprlandConfigPath]
+        running: true
+        stdout: SplitParser {
+            onRead: data => { root.terminalOutput = data; }
+        }
+        onExited: {
+            var match = root.terminalOutput.match(/\$terminal\s*=\s*(.+)/);
+            if (match) hyprlandTerminal = match[1].trim();
+        }
+    }
+
+    Process {
+        id: readFileManager
+        command: ["grep", "^\\$fileManager", hyprlandConfigPath]
+        running: true
+        stdout: SplitParser {
+            onRead: data => { root.fileManagerOutput = data; }
+        }
+        onExited: {
+            var match = root.fileManagerOutput.match(/\$fileManager\s*=\s*(.+)/);
+            if (match) hyprlandFileManager = match[1].trim();
+        }
+    }
+
+    // Functions to update hyprland.conf
+    function setHyprlandTerminal(value) {
+        hyprlandTerminal = value;
+        updateTerminalProc.command = ["sed", "-i", "s/^\\$terminal = .*/$terminal = " + value + "/", hyprlandConfigPath];
+        updateTerminalProc.running = true;
+    }
+
+    function setHyprlandFileManager(value) {
+        hyprlandFileManager = value;
+        updateFileManagerProc.command = ["sed", "-i", "s/^\\$fileManager = .*/$fileManager = " + value + "/", hyprlandConfigPath];
+        updateFileManagerProc.running = true;
+    }
+
+    Process {
+        id: updateTerminalProc
+        onExited: console.log("Hyprland terminal updated")
+    }
+
+    Process {
+        id: updateFileManagerProc
+        onExited: console.log("Hyprland fileManager updated")
+    }
+
     //*=======================================================================*/
     // READ THIS NOTE:
     // Simply add to this list in order to create your
@@ -77,6 +135,8 @@ Singleton {
     }
 
     property bool openSettingsWindow: false
+    property bool openPowerMenu: false
+    property bool openNotificationHistory: false
 
     property alias settings: settingsJsonAdapter.settings
     FileView {

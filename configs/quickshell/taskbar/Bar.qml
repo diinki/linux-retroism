@@ -204,6 +204,19 @@ Scope {
 
                 /*=== ============================= ===*/
 
+                /*=== Notification Button ===*/
+                TaskbarButton {
+                    id: notificationButton
+                    isToggled: Config.openNotificationHistory
+                    iconFontValue: "\ue7f5"
+                    anchors.right: test.left
+                    anchors.rightMargin: 6
+                    anchors.verticalCenter: parent.verticalCenter
+                    onClicked: {
+                        Config.openNotificationHistory = !Config.openNotificationHistory;
+                    }
+                }
+
                 /*=== System Tray & Background for it ===*/
                 Item {
                     id: test

@@ -1,25 +1,25 @@
 {
-  "settings": {
-    "bar": {
-      "fontSize": 12,
-      "monochromeTrayIcons": true,
-      "trayIconSize": 16
-    },
-    "currentTheme": "default",
-    "execCommands": {
-      "files": "nemo",
-      "terminal": "kitty"
-    },
-    "militaryTimeClockFormat": true,
-    "setWallpaperToThemeWallpaper": true,
-    "systemDetails": {
-      "cpu": "CPU Name",
-      "gpu": "GPU Name",
-      "osName": "Linux Distro",
-      "osVersion": "Distro Version",
-      "ram": "Ram"
-    },
-    "systemProfileImageSource": "/home/username/Pictures/system_profile_picture.png",
-    "version": "0.1"
-  }
+    "settings": {
+        "bar": {
+            "fontSize": 10,
+            "monochromeTrayIcons": false,
+            "trayIconSize": 14
+        },
+        "currentTheme": "yorha",
+        "execCommands": {
+            "files": "nautilus",
+            "terminal": "zshrc"
+        },
+        "militaryTimeClockFormat": true,
+        "setWallpaperToThemeWallpaper": true,
+        "systemDetails": {
+            "cpu": "Intel i5-12450H",
+            "gpu": "RTX 3050 Ti 4GB",
+            "osName": "Arch Linux",
+            "osVersion": "Rolling Release",
+            "ram": "32GB"
+        },
+        "systemProfileImageSource": "/home/ozhan/Masaüstü/Danni _ bg3.jpg",
+        "version": "1.0"
+    }
 }
