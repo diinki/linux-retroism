@@ -48,8 +48,9 @@ RowLayout {
                 anchor.window: taskbar
 
                 // Yes I know, this is a confusing way to get the position for the menu, but that's
-                // just how Qt is.
-                anchor.rect.x: taskbar.width - (sysTrayRow.width + clockWidget.width - trayItem.x)
+                // just how Qt is. - diinki
+                // PRO TIP: use a const (24) instead of statusWidget.width - GhostNoise a. k. a. codeapeman on github
+                anchor.rect.x: taskbar.width - (sysTrayRow.width - trayItem.x + 24)
                 anchor.rect.y: taskbar.height - 10
 
                 anchor.rect.height: trayItem.height
@@ -90,7 +91,7 @@ RowLayout {
             }
         }
     }
-    ClockWidget {
-        id: clockWidget
+    StatusWidget {
+        id: statusWidget
     }
 }
