@@ -234,6 +234,5 @@ PopupWindow {
 
     function closeAppLauncher() {
         closeAnimation.start();
-        Config.currentPopup = Config.SystemPopup.None;
     }
 }

@@ -210,6 +210,5 @@ PopupWindow {
 
     function closeThemeMenu() {
         closeAnimation.start();
-        Config.currentPopup = Config.SystemPopup.None;
     }
 }
